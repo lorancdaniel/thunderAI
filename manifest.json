@@ -1,0 +1,31 @@
+{
+  "manifest_version": 2,
+  "name": "ThunderAI Mail Generator",
+  "description": "Generate email drafts in Thunderbird using OpenAI.",
+  "version": "0.1.0",
+  "applications": {
+    "gecko": {
+      "id": "thunderai@local",
+      "strict_min_version": "115.0"
+    }
+  },
+  "permissions": [
+    "storage",
+    "compose",
+    "tabs",
+    "https://api.openai.com/*"
+  ],
+  "background": {
+    "scripts": [
+      "background.js"
+    ]
+  },
+  "compose_action": {
+    "default_title": "Generate with OpenAI",
+    "default_popup": "popup/popup.html"
+  },
+  "options_ui": {
+    "page": "options/options.html",
+    "open_in_tab": true
+  }
+}

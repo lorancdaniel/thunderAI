@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ThunderAI</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <main>
+      <h1>ThunderAI</h1>
+      <form id="generate-form">
+        <label for="prompt">What should this email achieve?</label>
+        <textarea
+          id="prompt"
+          placeholder="Example: Follow up after demo and ask for next meeting on Tuesday."
+          required
+        ></textarea>
+
+        <label for="tone">Tone</label>
+        <select id="tone">
+          <option value="professional" selected>Professional</option>
+          <option value="friendly">Friendly</option>
+          <option value="direct">Direct</option>
+          <option value="formal">Formal</option>
+        </select>
+
+        <label for="language">Language</label>
+        <input id="language" type="text" value="Polish" />
+
+        <button id="generate-button" type="submit">Generate and insert</button>
+      </form>
+
+      <button id="open-options" type="button" hidden>Open add-on settings</button>
+      <p id="status" role="status"></p>
+      <pre id="preview" hidden></pre>
+    </main>
+
+    <script src="popup.js"></script>
+  </body>
+</html>
