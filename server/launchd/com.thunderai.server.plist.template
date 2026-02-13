@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.thunderai.server</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>{{NODE_BIN}}</string>
+    <string>{{SERVER_INDEX_JS}}</string>
+  </array>
+
+  <key>WorkingDirectory</key>
+  <string>{{SERVER_DIR}}</string>
+
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>PATH</key>
+    <string>{{PATH_VALUE}}</string>
+    <key>HOST</key>
+    <string>{{HOST_VALUE}}</string>
+    <key>PORT</key>
+    <string>{{PORT_VALUE}}</string>
+    <key>CODEX_BIN</key>
+    <string>{{CODEX_BIN}}</string>
+    <key>CODEX_WORKDIR</key>
+    <string>{{CODEX_WORKDIR}}</string>
+  </dict>
+
+  <key>RunAtLoad</key>
+  <true/>
+  <key>KeepAlive</key>
+  <true/>
+
+  <key>StandardOutPath</key>
+  <string>{{STDOUT_LOG}}</string>
+  <key>StandardErrorPath</key>
+  <string>{{STDERR_LOG}}</string>
+</dict>
+</plist>

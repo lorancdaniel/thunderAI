@@ -13,7 +13,8 @@
     "storage",
     "compose",
     "tabs",
-    "https://api.openai.com/*"
+    "http://*/*",
+    "https://*/*"
   ],
   "background": {
     "scripts": [

@@ -10,15 +10,26 @@
     <main>
       <h1>ThunderAI Settings</h1>
       <p class="help">
-        Add your OpenAI API key. It is stored in Thunderbird local extension storage.
+        Connect through OpenAI/Codex login. No OpenAI API key is required in Thunderbird.
       </p>
 
-      <form id="settings-form">
-        <label for="openai-api-key">OpenAI API key</label>
-        <input id="openai-api-key" type="password" autocomplete="off" placeholder="sk-..." />
+      <section class="card">
+        <h2>OpenAI Account</h2>
+        <p id="auth-state" class="auth-state">Not connected</p>
+        <div class="actions">
+          <button id="connect-account" type="button">Connect OpenAI</button>
+          <button id="refresh-status" type="button" class="secondary">Refresh status</button>
+          <button id="disconnect-account" type="button" class="secondary">Log out</button>
+        </div>
+      </section>
 
-        <label for="openai-model">Model</label>
-        <input id="openai-model" type="text" value="gpt-4o-mini" />
+      <form id="settings-form" class="card">
+        <h2>Backend</h2>
+        <label for="backend-url">Backend URL</label>
+        <input id="backend-url" type="url" value="http://127.0.0.1:8787" />
+
+        <label for="codex-model">Codex model</label>
+        <input id="codex-model" type="text" value="gpt-5.3-codex" />
 
         <label for="preferred-language">Default language</label>
         <input id="preferred-language" type="text" value="Polish" />
@@ -26,6 +37,9 @@
         <button type="submit">Save settings</button>
       </form>
 
+      <p class="help small">
+        Login flow: add-on asks backend to start `codex login --device-auth`, opens OpenAI page, then waits for confirmation.
+      </p>
       <p id="status" role="status"></p>
     </main>
 

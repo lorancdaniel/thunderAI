@@ -1,0 +1,77 @@
+[
+  {
+    "namespace": "todoPanelExperiment",
+    "functions": [
+      {
+        "name": "ensurePanel",
+        "type": "function",
+        "async": true,
+        "parameters": [
+          {
+            "name": "options",
+            "type": "object",
+            "optional": true,
+            "properties": {
+              "url": {
+                "type": "string",
+                "optional": true
+              },
+              "visible": {
+                "type": "boolean",
+                "optional": true
+              },
+              "focus": {
+                "type": "boolean",
+                "optional": true
+              },
+              "width": {
+                "type": "integer",
+                "optional": true
+              }
+            }
+          }
+        ]
+      },
+      {
+        "name": "setPanelVisible",
+        "type": "function",
+        "async": true,
+        "parameters": [
+          {
+            "name": "visible",
+            "type": "boolean"
+          }
+        ]
+      },
+      {
+        "name": "setPanelData",
+        "type": "function",
+        "async": true,
+        "parameters": [
+          {
+            "name": "data",
+            "type": "any",
+            "optional": true
+          }
+        ]
+      },
+      {
+        "name": "startBackendService",
+        "type": "function",
+        "async": true
+      }
+    ],
+    "events": [
+      {
+        "name": "onPanelAction",
+        "type": "function",
+        "parameters": [
+          {
+            "name": "action",
+            "type": "any"
+          }
+        ]
+      }
+    ]
+  }
+]

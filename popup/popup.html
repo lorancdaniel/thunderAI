@@ -7,31 +7,46 @@
     <link rel="stylesheet" href="popup.css" />
   </head>
   <body>
-    <main>
-      <h1>ThunderAI</h1>
-      <form id="generate-form">
-        <label for="prompt">What should this email achieve?</label>
+    <main class="app">
+      <header class="hero">
+        <h1>ThunderAI</h1>
+        <p>Szybkie odpowiedzi na bazie kontekstu biezacego maila.</p>
+      </header>
+
+      <section class="card quick-card" aria-label="Szybka odpowiedz">
+        <h2>Szybka odpowiedz</h2>
+        <div class="quick-actions">
+          <button id="quick-done" type="button" class="quick-button done">Wykonano</button>
+          <button id="quick-not-done" type="button" class="quick-button not-done">
+            Nie wykonano
+          </button>
+        </div>
+        <p class="hint">Generuje odpowiedz bez wpisywania promptu, z uwzglednieniem kontekstu watku.</p>
+      </section>
+
+      <form id="generate-form" class="card">
+        <h2>Wlasny prompt</h2>
+        <label for="prompt">Co ma osiagnac wiadomosc?</label>
         <textarea
           id="prompt"
-          placeholder="Example: Follow up after demo and ask for next meeting on Tuesday."
-          required
+          placeholder="Np. Podsumuj ustalenia i zaproponuj termin wdrozenia na przyszly tydzien."
         ></textarea>
 
-        <label for="tone">Tone</label>
+        <label for="tone">Ton</label>
         <select id="tone">
-          <option value="professional" selected>Professional</option>
-          <option value="friendly">Friendly</option>
-          <option value="direct">Direct</option>
-          <option value="formal">Formal</option>
+          <option value="professional" selected>Profesjonalny</option>
+          <option value="friendly">Przyjazny</option>
+          <option value="direct">Konkretny</option>
+          <option value="formal">Formalny</option>
         </select>
 
-        <label for="language">Language</label>
+        <label for="language">Jezyk</label>
         <input id="language" type="text" value="Polish" />
 
-        <button id="generate-button" type="submit">Generate and insert</button>
+        <button id="generate-button" type="submit">Generuj i wstaw</button>
       </form>
 
-      <button id="open-options" type="button" hidden>Open add-on settings</button>
+      <button id="open-options" type="button" hidden>Otworz ustawienia dodatku</button>
       <p id="status" role="status"></p>
       <pre id="preview" hidden></pre>
     </main>

@@ -1,0 +1,269 @@
+:root {
+  --bg: #eef3fb;
+  --card: #ffffff;
+  --line: #d7dfec;
+  --ink: #1a2438;
+  --muted: #4b5a79;
+  --primary: #0f62fe;
+  --secondary: #4f5968;
+  --ok: #026a38;
+  --error: #b42318;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  width: 100%;
+  overflow: hidden;
+  font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  background:
+    radial-gradient(circle at 0% -20%, #d8e8ff 0%, rgba(216, 232, 255, 0) 55%),
+    radial-gradient(circle at 120% -20%, #ffe7c2 0%, rgba(255, 231, 194, 0) 45%),
+    var(--bg);
+  color: var(--ink);
+}
+
+.app {
+  height: 100%;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: auto auto auto auto minmax(0, 1fr) auto;
+  gap: 10px;
+  padding: 12px;
+}
+
+.header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+h1 {
+  margin: 0;
+  font-size: 20px;
+  line-height: 1.1;
+}
+
+#subtitle {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.server-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.server-health {
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--muted);
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.server-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  display: inline-block;
+  background: #98a2b3;
+}
+
+.server-health.online .server-dot {
+  background: #12b76a;
+}
+
+.server-health.offline .server-dot {
+  background: #f04438;
+}
+
+.server-start {
+  padding: 6px 8px;
+  font-size: 11px;
+  border-radius: 7px;
+  white-space: nowrap;
+}
+
+button {
+  border: none;
+  border-radius: 8px;
+  padding: 8px 10px;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  background: var(--primary);
+  color: #fff;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+button.secondary {
+  background: var(--secondary);
+}
+
+#status {
+  min-height: 18px;
+  margin: 0;
+  font-size: 12px;
+}
+
+#status.success {
+  color: var(--ok);
+}
+
+#status.error {
+  color: var(--error);
+}
+
+.empty {
+  background: var(--card);
+  border: 1px dashed var(--line);
+  border-radius: 9px;
+  padding: 10px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.todo-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 8px;
+  min-height: 0;
+  max-height: none;
+  overflow: auto;
+}
+
+.todo-item {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 10px;
+  color: var(--ink);
+  display: grid;
+  gap: 5px;
+}
+
+.todo-item:hover {
+  border-color: #9bb4e5;
+}
+
+.todo-item.is-done {
+  opacity: 0.75;
+}
+
+.todo-item.is-done .todo-title {
+  text-decoration: line-through;
+}
+
+.todo-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.todo-done {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.todo-done-checkbox {
+  margin: 0;
+}
+
+.todo-title {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.todo-description {
+  margin: 0;
+  font-size: 12px;
+  color: #304061;
+}
+
+.todo-meta {
+  margin: 0;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.priority {
+  display: inline-block;
+  border-radius: 999px;
+  padding: 2px 7px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.priority.high {
+  background: #ffe4e1;
+  color: #9a3412;
+}
+
+.priority.medium {
+  background: #fff3d6;
+  color: #8a5a00;
+}
+
+.priority.low {
+  background: #d8fce8;
+  color: #0e5c39;
+}
+
+.todo-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.todo-action {
+  border: none;
+  border-radius: 7px;
+  padding: 5px 9px;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  color: #fff;
+}
+
+.todo-reply {
+  background: var(--primary);
+}
+
+.todo-open {
+  background: var(--secondary);
+}
+
+.footer {
+  display: flex;
+  justify-content: flex-end;
+}

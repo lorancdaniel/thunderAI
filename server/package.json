@@ -1,0 +1,9 @@
+{
+  "name": "thunderai-backend",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Backend for Thunderbird ThunderAI add-on auth + email generation",
+  "scripts": {
+    "start": "node index.js"
+  }
+}

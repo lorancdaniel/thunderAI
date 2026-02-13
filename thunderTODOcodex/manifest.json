@@ -1,0 +1,47 @@
+{
+  "manifest_version": 2,
+  "name": "thunderTODOcodex",
+  "description": "Auto-generate TODO list from emails using Codex.",
+  "version": "0.1.18",
+  "applications": {
+    "gecko": {
+      "id": "thundertodocodex@local",
+      "strict_min_version": "115.0"
+    }
+  },
+  "permissions": [
+    "storage",
+    "alarms",
+    "tabs",
+    "compose",
+    "accountsRead",
+    "messagesRead",
+    "http://*/*",
+    "https://*/*"
+  ],
+  "background": {
+    "scripts": [
+      "background.js"
+    ]
+  },
+  "experiment_apis": {
+    "todoPanelExperiment": {
+      "schema": "experiments/todo_panel/schema.json",
+      "parent": {
+        "scopes": [
+          "addon_parent"
+        ],
+        "paths": [
+          [
+            "todoPanelExperiment"
+          ]
+        ],
+        "script": "experiments/todo_panel/implementation.js"
+      }
+    }
+  },
+  "options_ui": {
+    "page": "options/options.html",
+    "open_in_tab": true
+  }
+}

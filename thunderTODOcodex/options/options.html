@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>thunderTODOcodex Settings</title>
+    <link rel="stylesheet" href="options.css" />
+  </head>
+  <body>
+    <main>
+      <h1>thunderTODOcodex Settings</h1>
+      <p class="help">
+        TODO jest generowane automatycznie co 60 minut na podstawie maili przez backend Codex.
+      </p>
+      <p class="help" id="addon-version"></p>
+      <div class="server-row">
+        <p id="server-health" class="server-health unknown">
+          <span class="server-dot" aria-hidden="true"></span>
+          <span id="server-health-text">Sprawdzam status serwera...</span>
+        </p>
+        <button id="start-server" type="button" class="secondary server-start">Uruchom serwer</button>
+      </div>
+
+      <form id="settings-form" class="card">
+        <label for="backend-url">Backend URL</label>
+        <input id="backend-url" type="url" value="http://127.0.0.1:8787" />
+
+        <label for="codex-model">Codex model</label>
+        <input id="codex-model" type="text" value="gpt-5.3-codex" />
+
+        <label for="language">Language for TODO output</label>
+        <input id="language" type="text" value="Polish" />
+
+        <label class="toggle-row" for="keep-panel-open">
+          <input id="keep-panel-open" type="checkbox" checked />
+          Panel TODO zawsze otwarty (po zamknieciu otwiera sie ponownie)
+        </label>
+
+        <div class="actions">
+          <button type="submit">Zapisz</button>
+          <button id="open-panel-now" type="button">Otworz panel TODO teraz</button>
+          <button id="refresh-now" type="button" class="secondary">Wymus odswiezenie teraz</button>
+        </div>
+      </form>
+
+      <p id="status" role="status"></p>
+    </main>
+
+    <script src="options.js"></script>
+  </body>
+</html>

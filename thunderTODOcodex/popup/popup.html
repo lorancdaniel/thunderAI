@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>thunderTODOcodex</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <main class="app">
+      <header class="header">
+        <div>
+          <h1>thunderTODOcodex</h1>
+          <p id="subtitle">Lista TODO na bazie maili (auto co 60 min)</p>
+        </div>
+        <button id="refresh-button" type="button">Odswiez</button>
+      </header>
+
+      <div class="server-row">
+        <p id="server-health" class="server-health unknown">
+          <span class="server-dot" aria-hidden="true"></span>
+          <span id="server-health-text">Sprawdzam status serwera...</span>
+        </p>
+        <button id="start-server" type="button" class="secondary server-start">Uruchom serwer</button>
+      </div>
+      <p id="status" role="status"></p>
+
+      <section id="empty-state" class="empty" hidden>
+        Brak TODO. Kliknij odswiez, aby wygenerowac liste.
+      </section>
+
+      <ul id="todo-list" class="todo-list"></ul>
+
+      <footer class="footer">
+        <button id="open-options" type="button" class="secondary">Ustawienia</button>
+      </footer>
+    </main>
+
+    <script src="popup.js"></script>
+  </body>
+</html>

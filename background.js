@@ -1,6 +1,7 @@
-const DEFAULT_MODEL = "gpt-4o-mini";
+const DEFAULT_MODEL = "gpt-5.3-codex";
 const DEFAULT_LANGUAGE = "Polish";
-const REQUEST_TIMEOUT_MS = 45000;
+const DEFAULT_BACKEND_URL = "http://127.0.0.1:8787";
+const REQUEST_TIMEOUT_MS = 60000;
 
 function toRecipientList(value) {
   if (!value) {
@@ -36,127 +37,180 @@ function plainTextToHtml(text) {
   return `<div>${escaped.replaceAll("\n", "<br>")}</div>`;
 }
 
+function extractPlainTextFooter(currentBody) {
+  const body = String(currentBody || "").replaceAll("\r\n", "\n");
+  if (!body) {
+    return "";
+  }
+
+  const separators = ["\n-- \n", "\n--\n"];
+  let markerIndex = -1;
+  for (const separator of separators) {
+    const index = body.indexOf(separator);
+    if (index !== -1 && (markerIndex === -1 || index < markerIndex)) {
+      markerIndex = index;
+    }
+  }
+
+  if (markerIndex === -1) {
+    return "";
+  }
+
+  return body.slice(markerIndex).replace(/^\n+/, "").trimEnd();
+}
+
+function mergePlainTextWithFooter(generatedBody, currentBody) {
+  const footer = extractPlainTextFooter(currentBody);
+  if (!footer) {
+    return generatedBody;
+  }
+  return `${generatedBody.trimEnd()}\n\n${footer}`;
+}
+
+function findTagStartFromNeedle(html, needle) {
+  const lower = html.toLowerCase();
+  const index = lower.indexOf(needle.toLowerCase());
+  if (index === -1) {
+    return -1;
+  }
+  if (needle.startsWith("<")) {
+    return index;
+  }
+  return html.lastIndexOf("<", index);
+}
+
+function extractHtmlTail(currentHtml) {
+  const html = String(currentHtml || "");
+  if (!html.trim()) {
+    return "";
+  }
+
+  const markers = ["moz-signature", "moz-cite-prefix", "<blockquote"];
+  let startIndex = -1;
+
+  for (const marker of markers) {
+    const candidate = findTagStartFromNeedle(html, marker);
+    if (candidate !== -1 && (startIndex === -1 || candidate < startIndex)) {
+      startIndex = candidate;
+    }
+  }
+
+  if (startIndex === -1) {
+    return "";
+  }
+
+  return html.slice(startIndex).trim();
+}
+
+function mergeHtmlWithTail(generatedBody, currentHtml) {
+  const generatedHtml = plainTextToHtml(generatedBody);
+  const preservedTail = extractHtmlTail(currentHtml);
+  if (!preservedTail) {
+    return generatedHtml;
+  }
+  return `${generatedHtml}<br><br>${preservedTail}`;
+}
+
 function normalizeText(value) {
   return String(value || "").replaceAll("\r\n", "\n").trim();
 }
 
-function stripCodeFence(value) {
-  const text = value.trim();
-  if (text.startsWith("```") && text.endsWith("```")) {
-    return text.replace(/^```(?:json)?\n?/i, "").replace(/\n?```$/, "");
-  }
-  return text;
+function htmlToPlainText(html) {
+  return String(html || "")
+    .replace(/<style[\s\S]*?<\/style>/gi, " ")
+    .replace(/<script[\s\S]*?<\/script>/gi, " ")
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<\/p>/gi, "\n")
+    .replace(/<\/div>/gi, "\n")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&amp;/gi, "&")
+    .replace(/&lt;/gi, "<")
+    .replace(/&gt;/gi, ">")
+    .replace(/&#39;/gi, "'")
+    .replace(/&quot;/gi, '"')
+    .replace(/[ \t]+\n/g, "\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
 }
 
-function parseCompletion(content, fallbackSubject) {
-  const cleaned = stripCodeFence(content);
-
-  try {
-    const parsed = JSON.parse(cleaned);
-    const subject = normalizeText(parsed.subject) || fallbackSubject;
-    const body = normalizeText(parsed.body_plain);
-    if (body) {
-      return { subject, body };
-    }
-  } catch (_error) {
-    // Fallback below.
+function truncateText(value, maxLength) {
+  const text = normalizeText(value);
+  if (text.length <= maxLength) {
+    return text;
   }
+  return `${text.slice(0, maxLength)}\n\n[...truncated...]`;
+}
 
-  return {
-    subject: fallbackSubject,
-    body: normalizeText(content)
-  };
+function normalizeBaseUrl(value) {
+  return normalizeText(value).replace(/\/+$/, "");
 }
 
 async function loadSettings() {
   const data = await messenger.storage.local.get({
-    openaiApiKey: "",
-    openaiModel: DEFAULT_MODEL,
+    backendBaseUrl: DEFAULT_BACKEND_URL,
+    codexModel: DEFAULT_MODEL,
     preferredLanguage: DEFAULT_LANGUAGE
   });
+
   return {
-    apiKey: normalizeText(data.openaiApiKey),
-    model: normalizeText(data.openaiModel) || DEFAULT_MODEL,
+    backendBaseUrl: normalizeBaseUrl(data.backendBaseUrl) || DEFAULT_BACKEND_URL,
+    model: normalizeText(data.codexModel) || DEFAULT_MODEL,
     preferredLanguage: normalizeText(data.preferredLanguage) || DEFAULT_LANGUAGE
   };
 }
 
-function buildMessages({ prompt, tone, language, composeDetails }) {
-  const context = {
-    currentSubject: normalizeText(composeDetails.subject),
-    recipientsTo: toRecipientList(composeDetails.to),
-    recipientsCc: toRecipientList(composeDetails.cc)
-  };
-
-  const userPrompt = [
-    `Goal: ${normalizeText(prompt)}`,
-    `Tone: ${normalizeText(tone) || "professional"}`,
-    `Language: ${normalizeText(language) || DEFAULT_LANGUAGE}`,
-    `Current subject: ${context.currentSubject || "(empty)"}`,
-    `To: ${context.recipientsTo || "(empty)"}`,
-    `Cc: ${context.recipientsCc || "(empty)"}`
-  ].join("\n");
-
-  return [
-    {
-      role: "system",
-      content: [
-        "You write production-ready emails.",
-        "Return only valid JSON with keys: subject, body_plain.",
-        "body_plain must be plain text, no markdown."
-      ].join(" ")
-    },
-    {
-      role: "user",
-      content: userPrompt
-    }
-  ];
-}
-
-async function callOpenAi({ apiKey, model, messages }) {
+async function callBackendGenerate({ backendBaseUrl, payload }) {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
 
   try {
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`
-      },
-      body: JSON.stringify({
-        model,
-        messages,
-        temperature: 0.7
-      }),
-      signal: controller.signal
-    });
+    let response;
+    try {
+      response = await fetch(`${backendBaseUrl}/api/generate`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(payload),
+        signal: controller.signal
+      });
+    } catch (_error) {
+      throw new Error(
+        `Cannot reach backend at ${backendBaseUrl}. Start it with: cd server && node index.js`
+      );
+    }
+
+    const responseText = await response.text();
+    let responseBody = null;
+    if (responseText) {
+      try {
+        responseBody = JSON.parse(responseText);
+      } catch (_error) {
+        responseBody = null;
+      }
+    }
 
     if (!response.ok) {
-      const details = await response.text();
-      throw new Error(`OpenAI API error ${response.status}: ${details}`);
+      if (response.status === 401 || response.status === 403) {
+        throw new Error("Not signed in. Open add-on settings and connect OpenAI.");
+      }
+      const details = responseBody?.error || responseText || `Backend error ${response.status}.`;
+      throw new Error(details);
     }
 
-    const payload = await response.json();
-    const content = payload?.choices?.[0]?.message?.content;
-    const text = Array.isArray(content)
-      ? content
-          .map((part) => (typeof part === "string" ? part : part?.text || ""))
-          .join("")
-          .trim()
-      : normalizeText(content);
-
-    if (!text) {
-      throw new Error("Empty response from OpenAI.");
+    if (!responseBody || typeof responseBody !== "object") {
+      throw new Error("Invalid backend response format.");
     }
-    return text;
+
+    return responseBody;
   } finally {
     clearTimeout(timeoutId);
   }
 }
 
 async function handleGenerateEmail(message) {
-  const { tabId, prompt, tone, language } = message;
+  const { tabId, prompt, tone, language, quickStatus } = message;
   if (!tabId) {
     throw new Error("Compose tab not found.");
   }
@@ -165,41 +219,53 @@ async function handleGenerateEmail(message) {
   }
 
   const settings = await loadSettings();
-  if (!settings.apiKey) {
-    throw new Error("Missing OpenAI API key. Open add-on options and set it first.");
+  if (!settings.backendBaseUrl) {
+    throw new Error("Missing backend URL. Open add-on settings.");
   }
 
   const composeDetails = await messenger.compose.getComposeDetails(tabId);
-  const messages = buildMessages({
-    prompt,
-    tone,
-    language: normalizeText(language) || settings.preferredLanguage,
-    composeDetails
+  const currentBodyContext = composeDetails.isPlainText
+    ? normalizeText(composeDetails.plainTextBody)
+    : htmlToPlainText(composeDetails.body);
+
+  const result = await callBackendGenerate({
+    backendBaseUrl: settings.backendBaseUrl,
+    payload: {
+      prompt,
+      tone: normalizeText(tone) || "professional",
+      language: normalizeText(language) || settings.preferredLanguage,
+      model: settings.model,
+      quickStatus: normalizeText(quickStatus),
+      currentSubject: normalizeText(composeDetails.subject),
+      currentBody: truncateText(currentBodyContext, 8000),
+      to: toRecipientList(composeDetails.to),
+      cc: toRecipientList(composeDetails.cc),
+      isPlainText: Boolean(composeDetails.isPlainText)
+    }
   });
 
-  const rawCompletion = await callOpenAi({
-    apiKey: settings.apiKey,
-    model: settings.model,
-    messages
-  });
+  const generatedSubject = normalizeText(result.subject) || normalizeText(composeDetails.subject);
+  const generatedBody = normalizeText(result.body_plain || result.body || "");
+  if (!generatedBody) {
+    throw new Error("Backend returned empty email body.");
+  }
 
-  const generated = parseCompletion(rawCompletion, normalizeText(composeDetails.subject));
   const updates = {
-    subject: generated.subject
+    subject: generatedSubject
   };
 
   if (composeDetails.isPlainText) {
-    updates.plainTextBody = generated.body;
+    updates.plainTextBody = mergePlainTextWithFooter(generatedBody, composeDetails.plainTextBody);
   } else {
-    updates.body = plainTextToHtml(generated.body);
+    updates.body = mergeHtmlWithTail(generatedBody, composeDetails.body);
   }
 
   await messenger.compose.setComposeDetails(tabId, updates);
 
   return {
     ok: true,
-    subject: generated.subject,
-    body: generated.body
+    subject: generatedSubject,
+    body: generatedBody
   };
 }
 

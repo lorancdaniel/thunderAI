@@ -10,23 +10,50 @@ body {
 }
 
 main {
-  max-width: 620px;
+  max-width: 680px;
   margin: 32px auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.card {
   background: #fff;
   border: 1px solid #d0d7de;
   border-radius: 10px;
-  padding: 20px;
+  padding: 18px;
 }
 
 h1 {
-  margin: 0 0 8px;
+  margin: 0;
   font-size: 22px;
 }
 
+h2 {
+  margin: 0 0 10px;
+  font-size: 16px;
+}
+
 .help {
-  margin: 0 0 16px;
+  margin: 0;
   color: #475467;
   font-size: 14px;
+}
+
+.small {
+  font-size: 12px;
+}
+
+.auth-state {
+  margin: 0 0 10px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 form {
@@ -49,7 +76,6 @@ input {
 }
 
 button {
-  margin-top: 4px;
   border: none;
   border-radius: 6px;
   background: #0057d8;
@@ -60,9 +86,18 @@ button {
   cursor: pointer;
 }
 
+button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.secondary {
+  background: #475467;
+}
+
 #status {
   min-height: 18px;
-  margin: 14px 0 0;
+  margin: 0;
   font-size: 13px;
 }
 
